@@ -8,7 +8,7 @@ In order to use it:
 3) Connect ESP32 board to PC
 4) Check connectivity and COM port using *"Devices"* task of PlatformIO.
 You should see something like that:
- > Executing task in folder WebRemote-ESP32: C:\Users\ukkr\.platformio\penv\Scripts\platformio.exe device list <
+ > Executing task in folder WebRemote-ESP32: C:\Users\\<Windows_User>\\.platformio\penv\Scripts\platformio.exe device list <
  > COM3
  > ----
  > Hardware ID: USB VID:PID=10C4:EA60 SER=0001 LOCATION=1-2  
