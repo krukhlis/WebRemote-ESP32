@@ -33,3 +33,4 @@ Now, you are done flashing firmware and file system. The next steps are the same
 1) Connect from your phone/tablet/pc to corresponding WiFi network of your ESP32. The default WiFi password is 12345678
 2) Open webbrowser and navigate to http://192.168.4.1
 3) Enjoy :)
+"# WR-ESP32" 
