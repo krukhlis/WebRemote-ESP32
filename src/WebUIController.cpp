@@ -1,7 +1,7 @@
 #include "WebUIController.h"
 #include <SPIFFS.h>
 //Uncomment next line to andble captive portal redirection
-//#define REDIRECT_TO_CAPTIVE_PORTAL
+#define REDIRECT_TO_CAPTIVE_PORTAL
 
 WebUIController::WebUIController()
 {
@@ -15,6 +15,7 @@ WebUIController::~WebUIController()
 
 void WebUIController::setup()
 {
+	esp_log_level_set("*", ESP_LOG_VERBOSE);
 	/* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
 	on("/", handleRoot);
 
@@ -37,6 +38,7 @@ void WebUIController::setup()
 
 void WebUIController::loop()
 {
+	esp_log_level_set("*", ESP_LOG_VERBOSE);
 	handleClient();
 }
 

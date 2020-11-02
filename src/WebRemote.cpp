@@ -86,6 +86,8 @@ IPAddress apIP = IPAddress(192, 168, 4, 1);
 IPAddress netMsk = IPAddress(255, 255, 255, 0);
 
 const byte DNS_PORT = 53;
+
+
 DNSServer dnsServer;
 JoypadCollection joypads = JoypadCollection();
 
@@ -124,24 +126,27 @@ void EventSourceName() {
 	j->client = webServer.client();
 	j->clientIP = webServer.client().remoteIP();
 	joypads.add(j);
-
+	console.println("KRU.EventSourceName>>j.id="+String(j->id));
 	String ret = "http://" + apIP.toString() + ":80/api/events?{\"client\":\"" + String(j->id) + "\"}";
-
+	console.println("KRU.EventSourceName>>"+ret);
 	webServer.send(200, "text/plain", ret);
 
 }
 
 void Events() {
-	console.println(webServer.uri());
+	console.println("KRU.uri>>"+webServer.uri());
 	WiFiClient client = webServer.client();
-
+	for(int i = 0;i<webServer.args();i++){
+		console.println("KRU>>events>args"+String(i)+">"+webServer.argName(i));
+	}
 	String s = webServer.argName(0);
 	JsonString json = "";
 	json += s;
+	console.println("KRU>>Events>JSON:"+json);
 	int id = json.getInt("client");
 
-	//console.printf("client:%i", id);
-
+	console.printf("KRU>>Events>client:%i\n\r", id);
+	console.println("All-IDS:"+joypads.getAllIds());
 	Joypad* j = joypads.getById(id);
 	if (j == nullptr) {
 		console.printf("Unauthorized client %i\n", id);
@@ -157,7 +162,7 @@ void Events() {
 	j->client = client;
 	client.setNoDelay(true);
 	//KRU -- no method available
-	////client.setSync(true);
+	//client.setSync(true);
 	//EOF KRU
 	webServer.setContentLength(CONTENT_LENGTH_UNKNOWN); // the payload can go on forever
 	webServer.sendContent_P(PSTR("HTTP/1.1 200 OK\nContent-Type: text/event-stream;\nConnection: keep-alive\nCache-Control: no-cache\nAccess-Control-Allow-Origin: *\n\n"));
@@ -173,7 +178,7 @@ void Post() {
 		json += s;
 		int id = json.getInt("client");
 
-		//console.printf("client:%i\n", id);
+		console.printf("KRU>>post>client:%i\n", id);
 
 		Joypad* j = joypads.getById(id);
 		if (j == nullptr) {
@@ -199,7 +204,11 @@ void setup()
 	console.println();
 	console.println();
 	console.println();
-
+	ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
+	esp_log_level_set("*", ESP_LOG_VERBOSE);
 	String s;
 	if (!SPIFFS.begin()) {
 		console.println(F("No file system!"));
@@ -224,11 +233,11 @@ void setup()
 	setupController.cfg = &config;
 	setupController.reloadConfig = reloadConfig;
 	setupController.loadConfig();
-
+/*
 	WiFi.begin();
 	WiFi.disconnect();
 	WiFi.mode(WIFI_AP);
-
+*/
 	s = config.ssid + "_" + WiFi.macAddress();
 	s.replace(":", "");
 	strcpy(&SSID[0], s.c_str());
@@ -247,7 +256,7 @@ void setup()
 
 	webServer.setup();
 	webServer.on("/api/EventSourceName", EventSourceName);
-	webServer.on("/api/events", Events);
+	webServer.on("/api/events", HTTPMethod::HTTP_GET, Events);
 	webServer.on("/api/post", HTTPMethod::HTTP_POST, Post);
 
 	leftMotor = new SpeedController("Left motor", pinLeftMotor, &leftMotorEffect);
@@ -291,7 +300,8 @@ void setup()
 	gunStick.holdInterval = 50;
 
 	state.gun_position = config.gun_min + ((config.gun_max - config.gun_min) / 2);
-	gun.attach(pinGunMotor);
+	gun.attach(pinGunMotor, config.gun_min, config.gun_max);
+	gun.setPeriodHertz(50); 
 	gun.write(state.gun_position);
 
 	state.ignition = Ignition::OFF;

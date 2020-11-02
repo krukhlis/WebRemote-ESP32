@@ -133,6 +133,17 @@ JoypadCollection::JoypadCollection()
 {
 }
 
+String JoypadCollection::getAllIds()
+{
+	String res = "";
+	Joypad* j = (Joypad*)getFirst();
+	while (j != nullptr) {
+		res = res+String(j->id);
+		j = (Joypad*)(j->next);
+	}
+	return res;
+}
+
 Joypad* JoypadCollection::getById(int id)
 {
 	Joypad* j = (Joypad*)getFirst();
@@ -162,15 +173,15 @@ void JoypadCollection::setValue(String name, double value)
 	if (fields == nullptr) {
 		fields = new Collection();
 	}
-	//Проставляємо поточні значення
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	if (!JoypadCollection::setValue(fields, name, value)) {
-		//не знайшли, додаємо
+		//пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ
 		Joypadfield* jf = new Joypadfield(name);
 		jf->value = value;
 		fields->add(jf);
 	};
 
-	//Поновляємо значення у всіх клієнтах
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅлієпїЅпїЅпїЅпїЅ
 	Joypad* j = (Joypad*)getFirst();
 	while (j != nullptr) {
 		JoypadCollection::setValue(j->fields, name, value);
@@ -183,7 +194,7 @@ double JoypadCollection::getValue(String name)
 	if (fields == nullptr) return 0;
 	Joypadfield* j = (Joypadfield*)(fields->getFirst());
 	while (j != nullptr) {
-		if (name == j->name) {//Знайшли
+		if (name == j->name) {//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			return j->value;
 		}
 		j = (Joypadfield*)(j->next);
@@ -197,7 +208,7 @@ bool JoypadCollection::setValue(Collection* fields, String name, double value)
 
 	Joypadfield* j = (Joypadfield*)(fields->getFirst());
 	while (j != nullptr) {
-		if (name == j->name) {//Знайшли
+		if (name == j->name) {//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			j->value = value;
 			return true;
 		}
@@ -221,7 +232,7 @@ void JoypadCollection::loop()
 				//Serial.println(m);
 
 				if (!j->sendValues()) {
-					//Немає звязку
+					//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 					Joypad* next = (Joypad*)(j->next);
 					remove(j);
 					delete j;
@@ -237,7 +248,7 @@ void JoypadCollection::loop()
 		}
 		else if ((m - j->report) > keepAliveInterval) {
 			if (!j->keepAlive()) {
-				//Немає звязку
+				//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 				Joypad* next = (Joypad*)(j->next);
 				remove(j);
 				delete j;
